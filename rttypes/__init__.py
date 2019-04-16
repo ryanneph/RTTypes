@@ -6,7 +6,7 @@ import warnings
 #  sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 #  sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-from . import ( rttypes, loggers )
+from . import ( loggers )
 
 # Set default logging handler to avoid "No handler found" warnings.
 import logging
