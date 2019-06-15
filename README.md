@@ -1,5 +1,5 @@
 # RTTypes
-This is a library written in Python 3.x and CUDA for common tasks when dealing with the DICOM medical image format in a research setting. 
+This is a library written in Python 3.x for common tasks when dealing with the DICOM medical image format in a research setting. rttypes is a shorthand for Radiotherapy-types, class definitions for common data formats used in radiation therapy treatment planning and delivery, such as CT/MR images, and regions of interest (ROIs).
 ## Overview
 Key features include:
 * Easy I/O of dicom images/volumes commonly used in storage of CT, MR, and PET images.
