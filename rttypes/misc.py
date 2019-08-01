@@ -6,6 +6,7 @@ collection of miscellanious convenience functions
 import os
 import time
 import logging
+import pydicom
 
 # initialize module logger
 logger = logging.getLogger(__name__)
@@ -32,6 +33,18 @@ def numpy_safe_string_from_array(array):
         else:
             return xstr(array.item())
     except: return None
+
+def find_rtstr_files(dir):
+    files = []
+    for f in os.listdir(dir):
+        fullpath = os.path.join(dir, f)
+        if not os.path.isfile(fullpath) or not os.path.splitext(f)[1].lower() in ['.dcm', '.dicom']:
+            continue
+        with open(fullpath, 'rb') as fd:
+            dcm = pydicom.dcmread(fd, defer_size=1024, stop_before_pixels=True)
+            if dcm['SOPClassUID'].value == '1.2.840.10008.5.1.4.1.1.481.3':
+                files.append(fullpath)
+    return files
 
 
 from itertools import zip_longest
