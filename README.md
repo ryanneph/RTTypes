@@ -9,18 +9,11 @@ Key features include:
 rttypes will be updated periodically when time permits to become more functional and robust. Please stay tuned.
 1. Unit Tests
 2. Documentation Page
-3. Examples and Getting Started Guide
 
-## Installing
+## Installing & Updating
 Open a terminal window and enter:
 ``` bash
-pip3 install git+git://github.com/ryanneph/rttypes.git#egg=rttypes
-```
-
-## Updating
-Open a terminal window and enter:
-``` bash
-pip3 install --upgrade git+git://github.com/ryanneph/rttypes.git#egg=rttypes
+pip3 install --upgrade git+git://github.com/ryanneph/rttypes.git
 ```
 
 ## Development
@@ -29,6 +22,25 @@ Open a terminal window and enter:
 git clone https://github.com/ryanneph/rttypes.git
 cd rttypes
 pip3 install -e .
+```
+
+---
+## Example Usage
+```python
+from rttypes.volume import Volume
+from rttypes.roi import ROI
+
+# load a set of axial slices into a Volume object with its coordinate system information
+ctvol = Volume.fromDir('./ct_directory')
+print(ctvol)
+print(ctvol.frame)
+# get access to raw numpy array of Hounsfield Unit values
+print(ctvol.data.dtype, ctvol.data.shape)
+
+# load a named organ structure from an rtstruct file
+#   and convert it into a binary volume mask
+roi = ROI.roiFromFile('./rtstruct.dcm', 'O_HEART)
+roimask = roi.makeDenseMask(ctvol.frame)
 ```
 
 ## Contributing
