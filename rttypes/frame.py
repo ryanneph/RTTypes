@@ -56,14 +56,15 @@ class FrameOfReference:
         dataset_list.sort(key=lambda dataset: dataset.ImagePositionPatient[2], reverse=False)
 
         # build object properties
-        start = dataset_list[0].ImagePositionPatient
-        spacing = (*dataset_list[0].PixelSpacing, dataset_list[0].SliceThickness)
+        start = tuple([float(x) for x in dataset_list[0].ImagePositionPatient])
+        spacing = tuple([float(x) for x in (*dataset_list[0].PixelSpacing, dataset_list[0].SliceThickness)])
         try:
             # some modalities don't provide NumberOfSlices attribute
             size = (dataset_list[0].Columns, dataset_list[0].Rows, dataset_list[0].NumberOfSlices)
         except:
             # use length of list instead
             size = (dataset_list[0].Columns, dataset_list[0].Rows, len(dataset_list))
+        size = tuple([float(x) for x in size])
 
         UID = dataset_list[0].FrameOfReferenceUID
         return cls(start, spacing, size, UID)
