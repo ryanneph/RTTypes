@@ -308,14 +308,14 @@ class Volume:
 
         # check that all elements are valid slices, if not remove and continue
         nRemoved = 0
-        for i, slice in enumerate(dataset_list):
+        for i, slice in enumerate(list(dataset_list)):
             if (not isinstance(slice, pydicom.dataset.Dataset)):
                 logger.debug('invalid type ({t:s}) at idx {i:d}. removing.'.format(
                     t=str(type(slice)),
                     i=i ) )
                 dataset_list.remove(slice)
                 nRemoved += 1
-            elif (len(slice.dir('ImagePositionPatient')) == 0):
+            elif (slice.get('SOPClassUID', None)!='1.2.840.10008.5.1.4.1.1.2'):
                 logger.debug('invalid .dcm image at idx {:d}. removing.'.format(i))
                 dataset_list.remove(slice)
                 nRemoved += 1
@@ -327,7 +327,7 @@ class Volume:
 
         # build object properties
         start = dataset_list[0].ImagePositionPatient
-        spacing = (*dataset_list[0].PixelSpacing, dataset_list[0].SliceThickness)
+        spacing = (*dataset_list[0].PixelSpacing, dataset_list[1].ImagePositionPatient[2]-dataset_list[0].ImagePositionPatient[2])
         try:
             # some modalities don't provide NumberOfSlices attribute
             size = (dataset_list[0].Columns, dataset_list[0].Rows, dataset_list[0].NumberOfSlices)

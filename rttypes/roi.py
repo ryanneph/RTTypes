@@ -273,18 +273,31 @@ class ROI:
             xspace, yspace, zspace = frameofreference.spacing
             cols, rows, depth = frameofreference.size
 
-            # generate binary mask for each slice in frameofreference
-            maskslicearray_list = []
-            # logger.debug('making dense mask volume from z coordinates: {:f} to {:f}'.format(
-            #              zstart, (zspace * (depth+1) + zstart)))
-            for i in range(depth):
-                position = zstart + i * zspace
-                # get a slice at every position within the current frameofreference
-                densemaskslice = self.makeDenseMaskSlice(position, frameofreference)
-                maskslicearray_list.append(densemaskslice.reshape((1, *densemaskslice.shape)))
+            maskarr = np.zeros(frameofreference.size[::-1], dtype=np.uint8)
+            for contour in self.coordslices:
+                if contour[0][2] < zstart-0.5*zspace or contour[0][2] > zstart+zspace*(0.5+depth):
+                    continue
+                slicearr = np.zeros((rows, cols))
+
+                # get coordinate values
+                index_coords = []
+                z_idx = int(round((contour[0][2] - zstart)/zspace))
+                for x, y, z in contour:
+                    # shift x and y and scale appropriately
+                    x_idx = int(round((x-xstart)/xspace))
+                    y_idx = int(round((y-ystart)/yspace))
+                    index_coords.append( (x_idx, y_idx) )
+
+                # use PIL to draw the polygon as a dense image (PIL uses shape: (width, height))
+                im = Image.new('1', (cols, rows), color=0)
+                imdraw = ImageDraw.Draw(im)
+                imdraw.polygon(index_coords, fill=1, outline=None)
+
+                # overwrite into mask
+                maskarr[z_idx] = np.logical_or(maskarr[z_idx], im, dtype=np.uint8)
 
             # construct Volume from dense slice arrays
-            densemask = Volume.fromArray(np.concatenate(maskslicearray_list, axis=0), frameofreference)
+            densemask = Volume.fromArray(maskarr, frameofreference)
             self.__cache_densemask = densemask
             return densemask
 
