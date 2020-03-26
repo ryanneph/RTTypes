@@ -336,8 +336,8 @@ class ROI:
             spacing = (1, 1, min_z_space)
             warnings.warn('Inferred spacing is deprecated in favor of manual specification. Please change code immediately to ensure correctness', DeprecationWarning)
         else:
-            if min_z_space != spacing[2]:
-                warnings.warn('Inferred slice thickness from rtstruct ({0:g}) not equal to user specified ({:g}). Using user specification ({1:g})'.format(min_z_space, spacing[2]))
+            if not math.isclose(min_z_space, spacing[2], rel_tol=0.05):
+                warnings.warn('Inferred slice thickness from rtstruct ({0:g}) not equal to user specified ({1:g}). Using user specification ({1:g})'.format(min_z_space, spacing[2]))
 
         # get start and end of roi volume extents
         global_limits = {'xmax': -5000,
