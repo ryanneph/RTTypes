@@ -39,7 +39,7 @@ print(ctvol.data.dtype, ctvol.data.shape)
 
 # load a named organ structure from an rtstruct file
 #   and convert it into a binary volume mask
-roi = ROI.roiFromFile('./rtstruct.dcm', 'O_HEART)
+roi = ROI.roiFromFile('./rtstruct.dcm', 'O_HEART')
 roimask = roi.makeDenseMask(ctvol.frame)
 ```
 
