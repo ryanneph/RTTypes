@@ -18,9 +18,10 @@ from .misc import indent, g_indents, ensure_extension
 # initialize module logger
 logger = logging.getLogger(__name__)
 
-RTIMAGE_SOP_CLASS_UID = "1.2.840.10008.5.1.4.1.1.481.1"
-CTIMAGE_SOP_CLASS_UID = "1.2.840.10008.5.1.4.1.1.2"
-MRIMAGE_SOP_CLASS_UID = "1.2.840.10008.5.1.4.1.1.4"
+RTIMAGE_SOP_CLASS_UID  = "1.2.840.10008.5.1.4.1.1.481.1"
+CTIMAGE_SOP_CLASS_UID  = "1.2.840.10008.5.1.4.1.1.2"
+MRIMAGE_SOP_CLASS_UID  = "1.2.840.10008.5.1.4.1.1.4"
+PETIMAGE_SOP_CLASS_UID = "1.2.840.10008.5.1.4.1.1.128"
 
 def get_roi_contour_module(ds):
     ds.ROIContourSequence = []

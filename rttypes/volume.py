@@ -315,7 +315,7 @@ class Volume:
                     i=i ) )
                 dataset_list.remove(slice)
                 nRemoved += 1
-            elif (slice.get('SOPClassUID', None)!='1.2.840.10008.5.1.4.1.1.2'):
+            elif (slice.get('SOPClassUID', None) not in [dcmio.CTIMAGE_SOP_CLASS_UID, dcmio.PETIMAGE_SOP_CLASS_UID, dcmio.MRIMAGE_SOP_CLASS_UID]):
                 logger.debug('invalid .dcm image at idx {:d}. removing.'.format(i))
                 dataset_list.remove(slice)
                 nRemoved += 1
