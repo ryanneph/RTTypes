@@ -11,12 +11,28 @@ from . import dcmio, misc
 from .volume import Volume
 from .misc import ensure_extension
 from .frame import FrameOfReference
+from .morph import binary_expansion
 
 logger = logging.getLogger(__name__)
 
 class ROI:
     """Defines a labeled RTStruct ROI for use in masking and visualization of Radiotherapy contours
     """
+    class CachedMask():
+        def __init__(self, mask, frame, margin):
+            self.mask = mask
+            self.attributes = {
+                'frame': frame,
+                'margin': margin,
+            }
+
+        def __eq__(self, other):
+            if isinstance(other, ROI.CachedMask):
+                return all((self.attributes.get(k, None) == other.attributes.get(k, None) for k in self.attributes.keys()))
+            else:
+                return NotImplemented
+
+
     def __init__(self, roicontour=None, structuresetroi=None):
         self.roinumber = None
         self.refforuid = None
@@ -24,7 +40,7 @@ class ROI:
         self.roiname = None
         self.coordslices = []
         # Cached variables
-        self.__cache_densemask = None   # storage for Volume when consecutive calls to
+        self._cache_densemask = None   # storage for Volume when consecutive calls to
                                         # makeDenseMask are made
                                         # with the same frameofreference object
 
@@ -244,12 +260,13 @@ class ROI:
         # convert from PIL image to np.ndarray and threshold to binary
         return np.array(im.getdata()).reshape((rows, cols))
 
-    def makeDenseMask(self, frameofreference=None):
+    def makeDenseMask(self, frameofreference=None, margin=0):
         """Takes a FrameOfReference and constructs a dense binary mask for the ROI (1 inside ROI, 0 outside)
         as a Volume
 
         Args:
             frameofreference   -- FrameOfReference that defines the position of ROI and size of dense volume
+            margin             -- physical radius of expansion from original mask (in units matching frameofreference.spacing)
 
         Returns:
             Volume
@@ -263,11 +280,10 @@ class ROI:
                 raise Exception
 
         # check cache for similarity between previously and currently supplied frameofreference objects
-        if (self.__cache_densemask is not None
-                and frameofreference == self.__cache_densemask.frameofreference):
+        if self._cache_densemask == ROI.CachedMask(mask=None, frame=frameofreference, margin=margin):
             # cached mask frameofreference is similar to current, return cached densemask volume
             # logger.debug('using cached dense mask volume')
-            return self.__cache_densemask
+            return self._cache_densemask.mask
         else:
             xstart, ystart, zstart = frameofreference.start
             xspace, yspace, zspace = frameofreference.spacing
@@ -298,7 +314,12 @@ class ROI:
 
             # construct Volume from dense slice arrays
             densemask = Volume.fromArray(maskarr, frameofreference)
-            self.__cache_densemask = densemask
+
+            # expand by margin (optional)
+            if margin > 0:
+                densemask = binary_expansion(densemask, radius=margin, inplace=True)
+
+            self._cache_densemask = ROI.CachedMask(mask=densemask, frame=frameofreference, margin=margin)
             return densemask
 
     def getROIExtents(self, spacing=None):
