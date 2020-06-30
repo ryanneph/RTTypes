@@ -30,7 +30,7 @@ class Volume:
     def __init__(self):
         """Entrypoint to class, initializes members
         """
-        self.data = None
+        self._data = None
         self.init_object = None
         self.frameofreference = None
         self.modality = None
