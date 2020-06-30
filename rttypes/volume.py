@@ -603,7 +603,7 @@ class Volume:
         resampled_volume.feature_label = self.feature_label
         return resampled_volume
 
-    def _resample(self, new_voxelsize=None, mode='nearest', order=3, zoom_factors=None):
+    def _resample(self, new_voxelsize=None, mode='constant', cval=0.0, order=1, zoom_factors=None):
         if zoom_factors is None and new_voxelsize is None: raise RuntimeError('must set either factor or new_voxelsize')
         if zoom_factors is not None and not isinstance(zoom_factors, list) and not isinstance(zoom_factors, tuple):
                 zoom_factors = tuple([zoom_factors]*self.data.ndim)
@@ -618,7 +618,7 @@ class Volume:
         logger.debug('resizing volume with factors (xyz): {!s}'.format(zoom_factors))
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            zoomarray = interpolation.zoom(self.data, zoom_factors[::-1], order=order, mode=mode)
+            zoomarray = interpolation.zoom(self.data, zoom_factors[::-1], order=order, mode=mode, cval=cval)
         zoomFOR = FrameOfReference(self.frameofreference.start, new_voxelsize, zoomarray.shape[::-1])
         return (zoomarray, zoomFOR)
 

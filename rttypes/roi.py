@@ -19,11 +19,11 @@ class ROI:
     """Defines a labeled RTStruct ROI for use in masking and visualization of Radiotherapy contours
     """
     class CachedMask():
-        def __init__(self, mask, frame, margin):
+        def __init__(self, mask, voxelsize, margin):
             self.mask = mask
             self.attributes = {
-                'frame': frame,
                 'margin': margin,
+                'voxelsize':voxelsize,
             }
 
         def __eq__(self, other):
@@ -260,7 +260,7 @@ class ROI:
         # convert from PIL image to np.ndarray and threshold to binary
         return np.array(im.getdata()).reshape((rows, cols))
 
-    def makeDenseMask(self, frameofreference=None, margin=0):
+    def makeDenseMask(self, frameofreference=None, new_voxelsize=None, margin=0):
         """Takes a FrameOfReference and constructs a dense binary mask for the ROI (1 inside ROI, 0 outside)
         as a Volume
 
@@ -279,8 +279,11 @@ class ROI:
                 logger.exception('no frame of reference provided')
                 raise Exception
 
+        if new_voxelsize is None:
+            new_voxelsize = frameofreference.spacing
+
         # check cache for similarity between previously and currently supplied frameofreference objects
-        if self._cache_densemask == ROI.CachedMask(mask=None, frame=frameofreference, margin=margin):
+        if self._cache_densemask == ROI.CachedMask(mask=None, voxelsize=new_voxelsize, margin=margin):
             # cached mask frameofreference is similar to current, return cached densemask volume
             # logger.debug('using cached dense mask volume')
             return self._cache_densemask.mask
@@ -319,7 +322,11 @@ class ROI:
             if margin > 0:
                 densemask = binary_expansion(densemask, radius=margin, inplace=True)
 
-            self._cache_densemask = ROI.CachedMask(mask=densemask, frame=frameofreference, margin=margin)
+            # resample if necessary:
+            if new_voxelsize != frameofreference.spacing:
+                densemask = densemask.resample(new_voxelsize, order=0, mode='constant', cval=0.0)
+
+            self._cache_densemask = ROI.CachedMask(mask=densemask, voxelsize=new_voxelsize, margin=margin)
             return densemask
 
     def getROIExtents(self, spacing=None):
