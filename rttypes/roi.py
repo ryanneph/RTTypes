@@ -281,6 +281,8 @@ class ROI:
 
         if new_voxelsize is None:
             new_voxelsize = frameofreference.spacing
+        if margin is None:
+            margin = 0
 
         # check cache for similarity between previously and currently supplied frameofreference objects
         if self._cache_densemask == ROI.CachedMask(mask=None, voxelsize=new_voxelsize, margin=margin):
