@@ -174,20 +174,17 @@ class ROI:
     def getROINames(rtstruct_path):
         ds = ROI._loadRtstructDicom(rtstruct_path)
 
-        if (ds is not None):
-            # get structuresetROI sequence
-            StructureSetROI_list = ds.StructureSetROISequence
-            nContours = len(StructureSetROI_list)
-            if (nContours <= 0):
-                logger.exception('no contours were found')
+        # get structuresetROI sequence
+        StructureSetROI_list = ds.StructureSetROISequence
+        nContours = len(StructureSetROI_list)
+        if (nContours <= 0):
+            logger.exception('no contours were found')
 
-            roi_names = []
-            for structuresetroi in StructureSetROI_list:
-                roi_names.append(structuresetroi.ROIName)
+        roi_names = []
+        for structuresetroi in StructureSetROI_list:
+            roi_names.append(structuresetroi.ROIName)
 
-            return roi_names
-        else:
-            logger.exception('no dataset was found')
+        return roi_names
 
     def makeDenseMaskSlice(self, position, frameofreference=None):
         """Takes a FrameOfReference and constructs a dense binary mask for the ROI (1 inside ROI, 0 outside)
